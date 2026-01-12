@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星守紗凪星盛祭應援紀行 - 2026 夢幻巡禮</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;900&family=Noto+Serif+JP:wght@700;900&family=Noto+Sans+TC:wght@300;500;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --rose-gold: #e5b3b3;
+            --soft-pink: #fce4ec;
+            --lilac: #f3e5f5;
+            --deep-rose: #d81b60;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+        
+        html { scroll-behavior: smooth; }
+
+        body { 
+            font-family: 'Noto Sans JP', 'Noto Sans TC', sans-serif; 
+            background-color: #fff9fb; 
+            color: #5d4037;
+            background-image: linear-gradient(135deg, #fff5f7 0%, #f3e5f5 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+        
+        .serif { font-family: 'Noto Serif JP', 'Playfair Display', serif; }
+        
+        .pink-gradient-text {
+            background: linear-gradient(to right, #d81b60 0%, #ec407a 50%, #ab47bc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* 保留原本 Header 風格但微調手機端的漸層層次 */
+        .hero-overlay {
+            background: linear-gradient(to bottom, 
+                rgba(255, 245, 247, 0) 0%, 
+                rgba(255, 245, 247, 0.1) 40%, 
+                rgba(255, 245, 247, 0.3) 60%, 
+                rgba(255, 255, 255, 0.85) 85%, 
+                rgba(255, 255, 255, 1) 100%);
+        }
+
+        .bday-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 20px rgba(229, 179, 179, 0.12);
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 1.25rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--rose-gold), var(--rose-gold), transparent);
+            opacity: 0.5;
+        }
+        
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--rose-gold);
+            position: absolute;
+            left: calc(1.25rem - 5px);
+            z-index: 10;
+        }
+
+        .date-badge {
+            background: linear-gradient(135deg, #f8bbd0 0%, #e1bee7 100%);
+            color: #880e4f;
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed rgba(229, 179, 179, 0.25);
+        }
+        .schedule-item:last-child { border-bottom: none; }
+        
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            color: #d81b60;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(216, 27, 96, 0.05);
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        
+        /* 手機底部固定導航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 50;
+        }
+        
+        .nav-dot {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d81b60;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .nav-dot:active { background: rgba(216, 27, 96, 0.1); }
+
+        #map-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            align-items: flex-end; /* 手機端建議從底部彈出 */
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            height: 70vh;
+            border-radius: 2rem 2rem 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+        }
+        
+        iframe {
+            width: 100%;
+            flex-grow: 1;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- 底部移動快捷導航 -->
+    <nav class="bottom-nav animate__animated animate__fadeInUp">
+        <a href="#day1" class="nav-dot">D1</a>
+        <a href="#day2" class="nav-dot">D2</a>
+        <a href="#day3" class="nav-dot">D3</a>
+        <a href="#day4" class="nav-dot">D4</a>
+        <a href="#day5" class="nav-dot">D5</a>
+        <a href="#day6" class="nav-dot">D6</a>
+    </nav>
+
+    <!-- 地圖 Modal -->
+    <div id="map-modal" onclick="closeMap()">
+        <div class="modal-content animate__animated animate__slideInUp" onclick="event.stopPropagation()">
+            <div class="p-4 flex justify-between items-center border-b border-pink-50">
+                <h3 id="modal-title" class="font-bold text-stone-700 truncate mr-4">景點地圖</h3>
+                <button onclick="closeMap()" class="p-2 bg-pink-50 rounded-full text-pink-600">
+                    <i data-lucide="x" size="20"></i>
+                </button>
+            </div>
+            <div id="map-frame-container" class="flex-grow">
+                <!-- 地圖將動態插入此處 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section (保持原有結構) -->
+    <header class="relative h-auto mt-6 flex flex-col items-center justify-center text-center overflow-hidden mb-8 bg-white mx-3 rounded-3xl shadow-sm border border-pink-50">
+        <div class="w-full relative">
+            <img src="https://pbs.twimg.com/media/G9yso2qasAAX_-e?format=jpg&name=large" class="w-full h-auto block opacity-75" alt="星守紗凪首圖">
+            <div class="absolute inset-0 hero-overlay"></div>
+            
+            <div class="absolute inset-0 z-10 flex flex-col items-center justify-end pb-5 animate__animated animate__fadeIn">
+                <div class="mb-1 inline-block animate__animated animate__heartBeat animate__infinite">
+                    <i data-lucide="music" class="text-pink-500/80" size="24"></i>
+                </div>
+                <p class="serif text-xs tracking-[0.3em] mb-1 text-pink-700/90 uppercase font-medium">星守紗凪バースデーLIVE</p>
+                <h1 class="serif text-2xl md:text-5xl font-black mb-1 pink-gradient-text drop-shadow-sm">星盛祭・誕 2026</h1>
+                <p class="serif text-xs font-bold tracking-[0.1em] text-purple-700/80 mb-3">HoshimoriSai Tan 2026</p>
+                
+                <div class="flex flex-col items-center gap-1">
+                    <div class="h-[1px] w-12 bg-pink-400/50"></div>
+                    <p class="text-[0.65rem] font-light tracking-[0.2em] text-stone-600 italic">夢幻巡禮與觀光紀行</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 relative">
+        <div class="timeline-line"></div>
+
+        <!-- Day 1 -->
+        <section id="day1" class="mb-12 relative pl-10 animate__animated animate__fadeInUp">
+            <div class="timeline-dot top-2"></div>
+            <div class="mb-4">
+                <span class="date-badge uppercase">Feb 04 | Start</span>
+                <h2 class="serif text-xl font-bold mt-1 text-stone-700">Day 1：抵達與漫步</h2>
+            </div>
+            <div class="bday-card p-4">
+                <div class="space-y-3">
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-pink-400"><i data-lucide="plane" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">下午：抵達東京</p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">16:50 <span class="map-btn" onclick="openMap('成田機場')">成田機場 <i data-lucide="map-pin" size="10"></i></span>。搭乘 Skyliner 前往市區。</p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-pink-400"><i data-lucide="moon" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">晚間：駒込入住</p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">入住 <span class="map-btn" onclick="openMap('JR東日本ホテルメッツ 駒込')">飯店 Mets 駒込 <i data-lucide="map-pin" size="10"></i></span>。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 2 -->
+        <section id="day2" class="mb-12 relative pl-10 animate__animated animate__fadeInUp">
+            <div class="timeline-dot top-2"></div>
+            <div class="mb-4">
+                <span class="date-badge uppercase">Feb 05 | Onsen</span>
+                <h2 class="serif text-xl font-bold mt-1 text-stone-700">Day 2：箱根溫泉之旅</h2>
+            </div>
+            <div class="bday-card p-4 border-l-4 border-pink-200">
+                <div class="space-y-3">
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-orange-400"><i data-lucide="sun" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">早上：<span class="map-btn" onclick="openMap('箱根神社 平和鳥居')">蘆之湖平和鳥居 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">水上鳥居拍照，眺望富士山。</p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-blue-500"><i data-lucide="ship" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">中午：<span class="map-btn" onclick="openMap('箱根海賊船 元箱根港')">蘆之湖海盜船 <i data-lucide="map-pin" size="10"></i></span></p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-lg text-center" style="width:18px">♨️</div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">晚間：<span class="map-btn" onclick="openMap('箱根蘆之湖溫泉 松坂屋本店')">松坂屋本店 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">享受頂級溫泉與懷石料理。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 3 -->
+        <section id="day3" class="mb-12 relative pl-10 animate__animated animate__fadeInUp">
+            <div class="timeline-dot top-2"></div>
+            <div class="mb-4">
+                <span class="date-badge uppercase">Feb 06 | Art</span>
+                <h2 class="serif text-xl font-bold mt-1 text-stone-700">Day 3：箱根藝術巡禮</h2>
+            </div>
+            <div class="bday-card p-4">
+                <div class="space-y-3">
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-purple-400"><i data-lucide="palette" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800"><span class="map-btn" onclick="openMap('彫刻の森美術館')">彫刻の森美術館 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">戶外雕刻園，色彩繽紛的交響樂塔。</p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-amber-600"><i data-lucide="mountain" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800"><span class="map-btn" onclick="openMap('大涌谷')">大涌谷探險 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">搭乘纜車前往火山口嚐黑蛋。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 4 -->
+        <section id="day4" class="mb-12 relative pl-10 animate__animated animate__fadeInUp">
+            <div class="timeline-dot top-2"></div>
+            <div class="mb-4">
+                <span class="date-badge uppercase">Feb 07 | Gathering</span>
+                <h2 class="serif text-xl font-bold mt-1 text-stone-700">Day 4：古園與聚會</h2>
+            </div>
+            <div class="bday-card p-4">
+                <div class="space-y-3">
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-green-500"><i data-lucide="trees" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800"><span class="map-btn" onclick="openMap('舊古河庭園')">舊古河庭園 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1">洋館與日式庭園的完美融合。</p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-pink-500"><i data-lucide="users" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800"><span class="map-btn" onclick="openMap('神保町コミュニティハブ')">神保町粉絲聚會 <i data-lucide="map-pin" size="10"></i></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 5: LIVE DAY -->
+        <section id="day5" class="mb-12 relative pl-10 animate__animated animate__pulse">
+            <div class="timeline-dot top-2 bg-pink-500 border-white ring-4 ring-pink-100"></div>
+            <div class="mb-4">
+                <span class="date-badge bg-gradient-to-r from-pink-500 to-purple-500 text-white uppercase">Feb 08 | Main Event</span>
+                <h2 class="serif text-2xl font-black mt-1 text-pink-600">Day 5：星盛祭</h2>
+            </div>
+            
+            <div class="bday-card p-4 bg-white/95 border-2 border-pink-100 shadow-xl">
+                <div class="schedule-item">
+                    <div class="flex-shrink-0 text-red-500"><i data-lucide="map-pinned" size="18"></i></div>
+                    <div>
+                        <p class="text-sm font-bold">早上：<span class="map-btn" onclick="openMap('根津神社')">根津神社參拜 <i data-lucide="map-pin" size="10"></i></span></p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-pink-50/50 rounded-2xl border border-pink-100 mt-4 text-center">
+                    <p class="text-xl font-black text-stone-800 mb-1">★ 星盛祭・誕 2026 ★</p>
+                    <div class="mb-3">
+                        <span class="map-btn font-bold px-3 py-1" onclick="openMap('初台DOORS')">初台 DOORS <i data-lucide="map-pin" size="12"></i></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-left">
+                        <div class="bg-white/80 p-2 rounded-xl border border-pink-100">
+                            <p class="text-[0.6rem] font-bold text-pink-600 mb-1">【1部】</p>
+                            <p class="text-[0.7rem] text-stone-700">Start 13:30</p>
+                        </div>
+                        <div class="bg-white/80 p-2 rounded-xl border border-pink-100">
+                            <p class="text-[0.6rem] font-bold text-pink-600 mb-1">【2部】</p>
+                            <p class="text-[0.7rem] text-stone-700">Start 18:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 6 -->
+        <section id="day6" class="mb-20 relative pl-10 animate__animated animate__fadeInUp">
+            <div class="timeline-dot top-2"></div>
+            <div class="mb-4">
+                <span class="date-badge uppercase">Feb 09 | Finish</span>
+                <h2 class="serif text-xl font-bold mt-1 text-stone-700">Day 6：祈願與回程</h2>
+            </div>
+            <div class="bday-card p-4">
+                <div class="space-y-3">
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-stone-500"><i data-lucide="cat" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800"><span class="map-btn" onclick="openMap('妙義神社 駒込')">妙義神社參拜 <i data-lucide="map-pin" size="10"></i></span></p>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="flex-shrink-0 text-pink-400"><i data-lucide="plane-takeoff" size="18"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-stone-800">15:30 <span class="map-btn" onclick="openMap('成田機場')">成田機場 <i data-lucide="map-pin" size="10"></i></span></p>
+                            <p class="text-[0.7rem] text-stone-500 mt-1 italic text-pink-400">期待下一次與星守的相見</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-10 opacity-30 px-6">
+        <p class="serif text-[0.6rem] tracking-[0.3em] text-stone-500 uppercase">Sana Hoshimori Fan Project</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function openMap(query) {
+            const modal = document.getElementById('map-modal');
+            const container = document.getElementById('map-frame-container');
+            const titleElem = document.getElementById('modal-title');
+            
+            titleElem.innerText = `📍 ${query}`;
+            const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&hl=zh-TW&z=16&t=&ie=UTF8&iwloc=B&output=embed`;
+            
+            container.innerHTML = `<iframe src="${embedUrl}" loading="lazy" allowfullscreen></iframe>`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeMap() {
+            const modal = document.getElementById('map-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+            document.getElementById('map-frame-container').innerHTML = ''; 
+        }
+    </script>
+</body>
+</html>
